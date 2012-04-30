@@ -148,7 +148,7 @@ make.record.writer = function(mode = NULL, format = NULL, con = NULL) {
     if(is.null(con)) con = pipe("cat", "wb")
     function(k, v) format(k, v, con)}}
 
-IO.formats = c("text", "json", "csv", "native", "native.text",
+IO.formats = c("text", "text.firstline.always", "json", "csv", "csv.firstline.always", "native", "native.text",
                "sequence.typedbytes")
 
 make.input.format = function(format = native.input.format, 
@@ -157,13 +157,20 @@ make.input.format = function(format = native.input.format,
   mode = match.arg(mode)
   if(is.character(format)) {
     format = match.arg(format, IO.formats)
+	first_line_text_format = "rhadoop.rmr.FirstLineHeaderTextInputFormat"
     switch(format, 
            text = {format = text.input.format; 
                    mode = "text"}, 
+		   text.firstline.always = {format = text.input.format;
+			   mode = "text";
+			   streaming.format = first_line_text_format},
            json = {format = json.input.format; 
                    mode = "text"}, 
            csv = {format = csv.input.format(...); 
                   mode = "text"}, 
+		   csv.firstline.always = {format = csv.input.format(...);
+		       mode = "text";
+		       streaming.format = first_line_text_format},
            native.text = {format = native.text.input.format; 
                      mode = "text"}, 
            native = {format = native.input.format; 
